@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head><title>Strava Debug</title></head>
+<body>
+  <h2>Strava Connection Test</h2>
+  <button onclick="testConnect()">1. Test Connect</button>
+  <button onclick="testStatus()">2. Check Status</button>
+  <button onclick="testAPI()">3. Test API Call</button>
+  <div id="output"></div>
+
+  <script>
+    const DOMAIN = 'YOUR-VERCEL-DOMAIN.vercel.app';  // ← CHANGE THIS
+    const CLIENT_ID = 'YOUR_CLIENT_ID';              // ← CHANGE THIS
+
+    function log(msg) {
+      document.getElementById('output').innerHTML += '<p>' + new Date().toLocaleTimeString() + ': ' + msg + '</p>';
+    }
+
+    async function testConnect() {
+      log('→ Starting connect...');
+      const authUrl = `https://www.strava.com/oauth/authorize?` +
+        `client_id=${CLIENT_ID}&` +
+        `redirect_uri=https://${DOMAIN}/api/callback&` +
+        `response_type=code&` +
+        `scope=read&approval_prompt=force`;
+      window.location.href = authUrl;
+    }
+
+    function testStatus() {
+      const connected = localStorage.getItem('strava_connected');
+      log('Status: ' + (connected ? '✅ CONNECTED' : '❌ NOT CONNECTED'));
+      log('Full localStorage: ' + JSON.stringify(localStorage));
+    }
+
+    async function testAPI() {
+      const token = localStorage.getItem('strava_token');
+      if (!token) return log('No token found');
+      log('→ Testing API with token...');
+      const res = await fetch('https://www.strava.com/api/v3/athlete', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      log('API result: ' + (res.ok ? '✅ SUCCESS' : '❌ FAILED: ' + data.message));
+    }
+
+    // Auto-check when page loads
+    window.onload = () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('strava') === 'success') {
+        localStorage.setItem('strava_connected', '1');
+        log('Callback detected - marked connected');
+        window.history.replaceState({}, '', '/debug.html');
+      }
+      testStatus();
+    };
+  </script>
+</body>
+</html>
