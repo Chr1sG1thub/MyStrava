@@ -4,6 +4,16 @@
 <head>
 <meta charset="UTF-8" />
 <title>Strava Activities</title>
+
+</head>
+<body>
+  <h1>Strava Activities</h1>
+  
+<button onclick="connectStrava()">Connect to Strava</button>
+<button onclick="getMyActivities()">Get Activities</button>
+<button onclick="refreshToken()">Refresh Token</button>
+<div id="result"></div>
+
   <script>
     // Your values (public client_id OK, Vercel URL from dashboard)
 const CLIENT_ID = '180222';
@@ -118,16 +128,6 @@ if (window.location.pathname.includes('callback')) {
 }
 
   </script>
-</head>
-<body>
-  <h1>Strava Activities</h1>
-  
-<button onclick="connectStrava()">Connect to Strava</button>
-<button onclick="getMyActivities()">Get Activities</button>
-<button onclick="refreshToken()">Refresh Token</button>
-<div id="result"></div>
-
-
 </body>
 
 </html>
