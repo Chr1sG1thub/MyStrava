@@ -16,9 +16,23 @@ export default async function handler(req, res) {
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error_description);
-    res.json(data);  // Returns access_token, refresh_token, etc.
+
+    // SHOW TOKENS BRIEFLY THEN REDIRECT (1 second delay)
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.write(`
+      <html>
+        <body>
+          <h2>✅ Connected to Strava!</h2>
+          <p>Tokens ready. Redirecting in 3 seconds...</p>
+          <pre>${JSON.stringify(data, null, 2)}</pre>
+          <script>
+            setTimeout(() => { window.location.href = '/'; }, 3000);
+          </script>
+        </body>
+      </html>
+    `);
+    res.end();
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-  res.redirect('my-strava-lay6.vercel.app' + '/');
 }
