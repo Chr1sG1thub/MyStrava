@@ -23,7 +23,7 @@ export default async function handler(req, res) {
       <script>
         localStorage.setItem('strava_token', '${data.access_token}');
         localStorage.setItem('strava_connected', '1');
-        window.location.href = '/debug.html?strava=success';
+        window.location.href = '/';
       </script>
       <p>Success! Redirecting...</p>
     `);
