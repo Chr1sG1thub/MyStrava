@@ -16,22 +16,17 @@
 
   <script>
     // Your values (public client_id OK, Vercel URL from dashboard)
-const CLIENT_ID = '180222';
-const VERCEL_URL = 'my-strava-lay6.vercel.app';  // e.g., https://strava-pwa-abc123.vercel.app
-//let accessToken = '';  // Will store after connect
-//let refreshToken = ''; // Will store after connect
 
-// 1. Connect Button: Redirect to Strava
+const DOMAIN = 'my-strava-lay6.vercel.app';  // YOUR EXACT .vercel.app
+const CLIENT_ID = '180222';  // YOUR ID
+
 function connectStrava() {
-  const authUrl = `https://www.strava.com/oauth/authorize?` +
-    `client_id=${CLIENT_ID}&` +
-    `redirect_uri=${encodeURIComponent(VERCEL_URL + '/api/callback')}&` +
-    `response_type=code&` +
-    `scope=read,activity:read_all&` +
-    `approval_prompt=force`;
+  const redirectUri = `https://${DOMAIN}/api/callback`;
+  const authUrl = `https://www.strava.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=read,activity:read_all&approval_prompt=force`;
   window.location.href = authUrl;
 }
 
+    
 // 2. After connect, create a "callback.html" page with this (or detect on main page)
 function handleCallback() {
   const urlParams = new URLSearchParams(window.location.search);
