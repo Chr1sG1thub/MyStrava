@@ -10,7 +10,8 @@
   <h1>Strava Activities</h1>
   
 <button onclick="connectStrava()">Connect to Strava</button>
-<button onclick="getMyActivities()">Get Activities</button>
+<div id="status">Not connected</div>
+  <button onclick="getMyActivities()">Get Activities</button>
 <button onclick="refreshToken()">Refresh Token</button>
 <div id="result"></div>
 
@@ -26,6 +27,15 @@ function connectStrava() {
   window.location.href = authUrl;
 }
 
+    function updateStatus() {
+  const isConnected = localStorage.getItem('strava_connected') === '1';
+  const el = document.getElementById('status');
+  if (!el) return;
+  el.textContent = isConnected ? '✅ Connected to Strava' : 'Not connected';
+}
+
+// Run once on load
+updateStatus();
     
 // 2. After connect, create a "callback.html" page with this (or detect on main page)
 function handleCallback() {
