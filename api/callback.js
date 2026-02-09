@@ -14,17 +14,26 @@ export default async function handler(req, res) {
         grant_type: 'authorization_code'
       })
     });
+
     const data = await response.json();
     if (!response.ok) throw new Error(data.error_description);
 
-    // SET COOKIES (secure, auto-sent on future fetches)
-    res.setHeader('Set-Cookie', [
-      `strava_access=${data.access_token}; HttpOnly; Path=/; Max-Age=21600`,  // 6hr
-      `strava_refresh=${data.refresh_token}; HttpOnly; Path=/; Max-Age=31536000`  // 1yr
-    ]);
-
-    // Auto-redirect to main page
-    res.redirect(307, '/');
+    // Simple HTML: mark connected in localStorage, then go home
+    res.setHeader('Content-Type', 'text/html');
+    res.status(200).send(`
+      <html>
+        <body>
+          <p>Connected to Strava. Redirecting…</p>
+          <script>
+            // Save minimal flag (you can also store tokens here if you want)
+            localStorage.setItem('strava_connected', '1');
+            // Optionally store token temporarily:
+            // localStorage.setItem('strava_access_token', '${data.access_token}');
+            window.location.href = '/';
+          </script>
+        </body>
+      </html>
+    `);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
