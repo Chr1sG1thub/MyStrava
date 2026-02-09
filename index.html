@@ -1,47 +1,103 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<title>Strava Activities</title>
-
+  <title>Strava Cycling PWA</title>
+  <meta name="viewport" content="width=device-width">
 </head>
-<body>
-  <h1>Strava Activities</h1>
+<body style="font-family: Arial; padding: 20px; max-width: 800px; margin: auto;">
+  <h1>🚴 Strava Cycling App</h1>
   
-<button onclick="connectStrava()">Connect Strava</button>
-<button onclick="getActivities()">Get My Rides</button>
-<div id="status">Loading...</div>
-
-<script>
-const DOMAIN = 'my-strava-lay6.vercel.app';  // Your Vercel domain
-const CLIENT_ID = '180222';
-
-function connectStrava() {
-  const authUrl = `https://www.strava.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=https://${DOMAIN}/api/callback&response_type=code&scope=read,activity:read_all&approval_prompt=force`;
-  window.location.href = authUrl;
-}
-
-function updateStatus() {
-  const connected = localStorage.getItem('strava_connected') === '1';
-  document.getElementById('status').textContent = connected ? '✅ Connected!' : 'Click Connect';
-}
-
-async function getActivities() {
-  const token = localStorage.getItem('strava_token');
-  if (!token) return alert('Connect first!');
+  <button onclick="connectStrava()" style="padding: 10px; font-size: 16px;">
+    🔗 Connect to Strava
+  </button>
   
-  const res = await fetch('https://www.strava.com/api/v3/athlete/activities?per_page=5', {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  const rides = await res.json();
-  document.getElementById('status').innerHTML = `<pre>${JSON.stringify(rides[0], null, 2)}</pre>`;
-}
+  <button onclick="loadAllRides()" style="padding: 10px; font-size: 16px; margin-left: 10px;">
+    📊 Load All My Rides
+  </button>
+  
+  <div id="status" style="margin-top: 20px; padding: 15px; border: 1px solid #ccc; min-height: 50px;">
+    Loading...
+  </div>
 
-// Load status
-updateStatus();
-</script>
+  <script>
+    // ← UPDATE THESE 2 LINES WITH YOUR VALUES
+    const DOMAIN = 'my-strava-lay6.vercel.app';     // From Vercel dashboard
+    const CLIENT_ID = '180222';              // From Strava dashboard
 
+    function connectStrava() {
+      const authUrl = `https://www.strava.com/oauth/authorize?` +
+        `client_id=${CLIENT_ID}&` +
+        `redirect_uri=https://${DOMAIN}/api/callback&` +
+        `response_type=code&` +
+        `scope=read,activity:read_all&approval_prompt=force`;
+      window.location.href = authUrl;
+    }
+
+    function updateStatus() {
+      const connected = localStorage.getItem('strava_connected') === '1';
+      const statusEl = document.getElementById('status');
+      if (connected) {
+        statusEl.innerHTML = `
+          <strong>✅ Connected to Strava!</strong><br>
+          <button onclick="loadAllRides()" style="margin-top: 10px;">📊 Load All Rides</button>
+        `;
+      } else {
+        statusEl.innerHTML = 'Click "Connect to Strava" to start';
+      }
+    }
+
+    async function loadAllRides() {
+      const token = localStorage.getItem('strava_token');
+      if (!token) {
+        document.getElementById('status').innerHTML = 'Connect first!';
+        return;
+      }
+
+      const statusEl = document.getElementById('status');
+      statusEl.innerHTML = '⏳ Loading all your rides...';
+
+      try {
+        let allRides = [];
+        let page = 1;
+        let hasMore = true;
+
+        // Fetch ALL pages (max 200 per page)
+        while (hasMore) {
+          const res = await fetch(`https://www.strava.com/api/v3/athlete/activities?per_page=200&page=${page}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const rides = await res.json();
+          if (!res.ok) throw new Error('API error: ' + rides.message);
+          if (rides.length === 0) hasMore = false;
+          allRides = allRides.concat(rides);
+          page++;
+        }
+
+        // Display results
+        const recent = allRides.slice(0, 20);  // Show 20 most recent
+        statusEl.innerHTML = `
+          <h3>📈 ${allRides.length} total rides loaded!</h3>
+          <h4>Most Recent:</h4>
+          <ul style="max-height: 400px; overflow: auto;">
+            ${recent.map(r => `
+              <li style="margin: 8px 0; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+                <strong>${r.name}</strong><br>
+                ${(r.distance/1000).toFixed(1)}km • 
+                ${Math.round(r.moving_time/60)}min • 
+                ${new Date(r.start_date).toLocaleDateString()} • 
+                <em>${r.type}</em>
+              </li>
+            `).join('')}
+          </ul>
+          <p><em>${allRides.length - recent.length} older rides available</em></p>
+        `;
+      } catch (error) {
+        statusEl.innerHTML = `<strong>❌ Error:</strong> ${error.message}<br>Token expired? Reconnect.`;
+      }
+    }
+
+    // Auto-update status on page load
+    updateStatus();
+  </script>
 </body>
-
 </html>
