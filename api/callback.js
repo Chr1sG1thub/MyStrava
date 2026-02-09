@@ -17,21 +17,14 @@ export default async function handler(req, res) {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error_description);
 
-    // SHOW TOKENS BRIEFLY THEN REDIRECT (1 second delay)
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.write(`
-      <html>
-        <body>
-          <h2>✅ Connected to Strava!</h2>
-          <p>Tokens ready. Redirecting in 3 seconds...</p>
-          <pre>${JSON.stringify(data, null, 2)}</pre>
-          <script>
-            setTimeout(() => { window.location.href = '/'; }, 3000);
-          </script>
-        </body>
-      </html>
-    `);
-    res.end();
+    // SET COOKIES (secure, auto-sent on future fetches)
+    res.setHeader('Set-Cookie', [
+      `strava_access=${data.access_token}; HttpOnly; Path=/; Max-Age=21600`,  // 6hr
+      `strava_refresh=${data.refresh_token}; HttpOnly; Path=/; Max-Age=31536000`  // 1yr
+    ]);
+
+    // Auto-redirect to main page
+    res.redirect(307, '/');
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
