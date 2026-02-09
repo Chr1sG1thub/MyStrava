@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Strava Activities</title>
+  <script>
+    // Your values (public client_id OK, Vercel URL from dashboard)
+const CLIENT_ID = '180222';
+const VERCEL_URL = 'https://my-strava.vercel.app';  // e.g., https://strava-pwa-abc123.vercel.app
+let accessToken = '';  // Will store after connect
+let refreshToken = ''; // Will store after connect
+
+// 1. Connect Button: Redirect to Strava
+function connectStrava() {
+  const authUrl = `https://www.strava.com/oauth/authorize?` +
+    `client_id=${CLIENT_ID}&` +
+    `redirect_uri=${encodeURIComponent(VERCEL_URL + '/api/callback')}&` +
+    `response_type=code&` +
+    `scope=read,activity:read_all&` +
+    `approval_prompt=force`;
+  window.location.href = authUrl;
+}
+
+// 2. After connect, create a "callback.html" page with this (or detect on main page)
+function handleCallback() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get('code');
+  if (!code) {
+    document.getElementById('result').innerHTML = 'No code found';
+    return;
+  }
+
+  // Get tokens from Vercel
+  fetch(`${VERCEL_URL}/api/callback?code=${code}`)
+    .then(res => res.json())
+    .then(data => {
+      accessToken = data.access_token;
+      refreshToken = data.refresh_token;
+      document.getElementById('result').innerHTML = 'Connected! Token ready.';
+      console.log('Tokens:', data);  // Check console
+    })
+    .catch(err => {
+      document.getElementById('result').innerHTML = 'Error: ' + err;
+    });
+}
+
+// 3. Get Activities Button (use after connect)
+async function getMyActivities() {
+  if (!accessToken) return alert('Connect first!');
+  try {
+    const res = await fetch('https://www.strava.com/api/v3/athlete/activities', {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    const activities = await res.json();
+    document.getElementById('result').innerHTML = `<pre>${JSON.stringify(activities.slice(0,3), null, 2)}</pre>`;  // Show first 3
+  } catch (err) {
+    if (err.message.includes('401')) refreshTokenFunc();  // Auto-refresh on expire
+    else document.getElementById('result').innerHTML = 'Error: ' + err;
+  }
+}
+
+// 4. Refresh Button (for expired token)
+async function refreshTokenFunc() {
+  if (!refreshToken) return alert('No refresh token!');
+  try {
+    const res = await fetch(VERCEL_URL + '/api/refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken })
+    });
+    const data = await res.json();
+    accessToken = data.access_token;
+    refreshToken = data.refresh_token;
+    document.getElementById('result').innerHTML = 'Token refreshed!';
+  } catch (err) {
+    document.getElementById('result').innerHTML = 'Refresh error: ' + err;
+  }
+}
+
+// Auto-run on callback page load
+if (window.location.pathname.includes('callback')) {
+  handleCallback();
+}
+
+  </script>
+</head>
+<body>
+  <h1>Strava Activities</h1>
+  
+<button onclick="connectStrava()">Connect to Strava</button>
+<button onclick="getMyActivities()">Get Activities</button>
+<button onclick="refreshToken()">Refresh Token</button>
+<div id="result"></div>
+
+
+</body>
+
+</html>
