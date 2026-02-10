@@ -29,7 +29,7 @@
         `client_id=${CLIENT_ID}&` +
         `redirect_uri=https://${DOMAIN}/api/callback&` +
         `response_type=code&` +
-        `scope=read,activity:read_all&approval_prompt=auto`;
+        `scope=read_all,activity:read_all&approval_prompt=auto`;
       window.location.href = authUrl;
     }
 
@@ -63,7 +63,7 @@
 
         // Fetch ALL pages (max 200 per page)
         while (hasMore) {
-          const res = await fetch(`https://www.strava.com/api/v3/athletes/180222/routes?page=&per_page=${page}`, {
+          const res = await fetch(`https://www.strava.com/api/v3/athletes/routes?page=&per_page=${page}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
 
