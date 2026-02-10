@@ -11,8 +11,8 @@
     🔗 Connect to Strava
   </button>
   
-  <button onclick="loadAllRides()" style="padding: 10px; font-size: 16px; margin-left: 10px;">
-    📊 Load All My Rides
+  <button onclick="loadAllRoutes()" style="padding: 10px; font-size: 16px; margin-left: 10px;">
+    📊 Load All My Routes
   </button>
   
   <div id="status" style="margin-top: 20px; padding: 15px; border: 1px solid #ccc; min-height: 50px;">
@@ -46,7 +46,7 @@
       }
     }
 
-    async function loadAllRides() {
+    async function loadAllRoutes() {
       const token = localStorage.getItem('strava_token');
       if (!token) {
         document.getElementById('status').innerHTML = 'Connect first!';
@@ -57,26 +57,27 @@
       statusEl.innerHTML = '⏳ Loading all your rides...';
 
       try {
-        let allRides = [];
+        let allRoutes = [];
         let page = 1;
         let hasMore = true;
 
         // Fetch ALL pages (max 200 per page)
         while (hasMore) {
-          const res = await fetch(`https://www.strava.com/api/v3/athlete/activities?per_page=20&page=${page}`, {
+          const res = await fetch(`https://www.strava.com/api/v3/athletes/180222/routes?page=&per_page=${page}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
-          const rides = await res.json();
-          if (!res.ok) throw new Error('API error: ' + rides.message);
+
+          const routes = await res.json();
+          if (!res.ok) throw new Error('API error: ' + routes.message);
           /*if (rides.length === 0)*/ hasMore = false;
-          allRides = allRides.concat(rides);
+          allRoutes = allRoutes.concat(routes);
           //page++;
         }
 
-        // Display results
-        const recent = allRides.slice(0, 20);  // Show 20 most recent
+     /*   // Display results
+        const recent = allRoutes.slice(0, 20);  // Show 20 most recent
         statusEl.innerHTML = `
-          <h3>📈 ${allRides.length} total rides loaded!</h3>
+          <h3>📈 ${allRoutes.length} total rides loaded!</h3>
           <h4>Most Recent:</h4>
           <ul style="max-height: 400px; overflow: auto;">
             ${recent.map(r => `
@@ -90,7 +91,7 @@
             `).join('')}
           </ul>
           <p><em>${allRides.length - recent.length} older rides available</em></p>
-        `;
+        `; */
       } catch (error) {
         statusEl.innerHTML = `<strong>❌ Error:</strong> ${error.message}<br>Token expired? Reconnect.`;
       }
