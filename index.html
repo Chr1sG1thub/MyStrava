@@ -20,7 +20,7 @@
   </div>
 
   <script>
-    // ← UPDATE THESE 2 LINES WITH YOUR VALUES
+
     const DOMAIN = 'my-strava-lay6.vercel.app';     // From Vercel dashboard
     const CLIENT_ID = '180222';              // From Strava dashboard
 
@@ -29,7 +29,7 @@
         `client_id=${CLIENT_ID}&` +
         `redirect_uri=https://${DOMAIN}/api/callback&` +
         `response_type=code&` +
-        `scope=read,activity:read_all&approval_prompt=force`;
+        `scope=read,activity:read_all&approval_prompt=auto`;
       window.location.href = authUrl;
     }
 
