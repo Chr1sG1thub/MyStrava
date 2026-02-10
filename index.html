@@ -63,14 +63,14 @@
 
         // Fetch ALL pages (max 200 per page)
         while (hasMore) {
-          const res = await fetch(`https://www.strava.com/api/v3/athlete/activities?per_page=200&page=${page}`, {
+          const res = await fetch(`https://www.strava.com/api/v3/athlete/activities?per_page=20&page=${page}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           const rides = await res.json();
           if (!res.ok) throw new Error('API error: ' + rides.message);
-          if (rides.length === 0) hasMore = false;
+          /*if (rides.length === 0)*/ hasMore = false;
           allRides = allRides.concat(rides);
-          page++;
+          //page++;
         }
 
         // Display results
