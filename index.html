@@ -11,8 +11,8 @@
     🔗 Connect to Strava
   </button>
   
-  <button onclick="loadAllRoutes()" style="padding: 10px; font-size: 16px; margin-left: 10px;">
-    📊 Load All My Routes
+  <button onclick="loadAllRides()" style="padding: 10px; font-size: 16px; margin-left: 10px;">
+    📊 Load All My Rides
   </button>
   
   <div id="status" style="margin-top: 20px; padding: 15px; border: 1px solid #ccc; min-height: 50px;">
@@ -46,7 +46,7 @@
       }
     }
 
-    async function loadAllRoutes() {
+    async function loadAllRides() {
       const token = localStorage.getItem('strava_token');
       if (!token) {
         document.getElementById('status').innerHTML = 'Connect first!';
@@ -57,20 +57,20 @@
       statusEl.innerHTML = '⏳ Loading all your rides...';
 
       try {
-        let allRoutes = [];
+        let allRides = [];
         let page = 1;
         let hasMore = true;
 
         // Fetch ALL pages (max 200 per page)
         while (hasMore) {
-          const res = await fetch(`https://www.strava.com/api/v3/athletes/routes?page=&per_page=${page}`, {
+          const res = await fetch(`https://www.strava.com/api/v3/athlete/activities?page=&per_page=${page}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
 
-          const routes = await res.json();
-          if (!res.ok) throw new Error('API error: ' + routes.message);
+          const rides = await res.json();
+          if (!res.ok) throw new Error('API error: ' + rides.message);
           /*if (rides.length === 0)*/ hasMore = false;
-          allRoutes = allRoutes.concat(routes);
+          allRides = allRides.concat(routes);
           //page++;
         }
 
