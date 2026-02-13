@@ -60,6 +60,7 @@
 
         // Fetch ALL pages (max 200 per page)
         while (hasMore) {
+          
           const res = await fetch(`https://www.strava.com/api/v3/athlete/activities?page=&per_page=${page}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
