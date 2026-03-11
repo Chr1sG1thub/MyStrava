@@ -73,6 +73,8 @@
 
         // Display results
         const recent = allRides.slice(0, 20);  // Show 20 most recent
+        theDay = new Date(r.start_date).getDay();
+        if (theDay == 0) {
         statusEl.innerHTML = `
             ${recent.map(r => `
               ${r.name}<br>
@@ -82,7 +84,7 @@
                 ${Math.round(r.elapsed_time/60)}min • 
                 ${new Date(r.start_date).toLocaleDateString()} • 
             `).join('')}
-        `;
+        `};
       } catch (error) {
         statusEl.innerHTML = `<strong>❌ Error:</strong> ${error.message}<br>Token expired? Reconnect.`;
       }
