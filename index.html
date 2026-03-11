@@ -74,20 +74,14 @@
         // Display results
         const recent = allRides.slice(0, 20);  // Show 20 most recent
         statusEl.innerHTML = `
-          <h3>📈 ${allRides.length} total rides loaded!</h3>
-          <h4>Most Recent:</h4>
-          <ul style="max-height: 400px; overflow: auto;">
             ${recent.map(r => `
-              <li style="margin: 8px 0; padding: 10px; background: #f5f5f5; border-radius: 5px;">
-                <strong>${r.name}</strong><br>
+              ${r.name}<br>
                 ${(r.distance/1000).toFixed(1)}km • 
+                ${(r.total_elevation_gain).toFixed(0)}m • 
                 ${Math.round(r.moving_time/60)}min • 
+                ${Math.round(r.elapsed_time/60)}min • 
                 ${new Date(r.start_date).toLocaleDateString()} • 
-                <em>${r.type}</em>
-              </li>
             `).join('')}
-          </ul>
-          <p><em>${allRides.length - recent.length} older rides available</em></p>
         `;
       } catch (error) {
         statusEl.innerHTML = `<strong>❌ Error:</strong> ${error.message}<br>Token expired? Reconnect.`;
