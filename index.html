@@ -59,7 +59,7 @@
         // Fetch ALL pages (max 50 per page)
         
         while (hasMore) {
-          const res = await fetch(`https://www.strava.com/api/v3/athlete/activities?page=${page}&per_page=500`, {
+          const res = await fetch(`https://www.strava.com/api/v3/athlete/activities?page=${page}&per_page=200`, {
             headers: { Authorization: `Bearer ${token}` }
           });
 
@@ -73,9 +73,9 @@
         } // while
 
         // Display results
-        const recent = allRides.slice(0, 500);  // Show 20 most recent
+        const recent = allRides.slice(0, 200);  // Show 20 most recent
         statusEl.innerHTML = '';
-        for (let i = 0; i < 500; i++){
+        for (let i = 0; i < 200; i++){
         let theDay = new Date(recent[i].start_date).getDay();
         if (theDay == 0) {
         statusEl.innerHTML += `
