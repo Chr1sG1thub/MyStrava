@@ -67,15 +67,15 @@
           if (!res.ok) throw new Error('API error: ' + (rides.message || res.statusText));
           
           allRides = allRides.concat(rides);
-          hasMore = false;
- //         hasMore = rides.length === 50;  // Continue if full page
+//          hasMore = false;
+          hasMore = rides.length === 200;  // Continue if full page
           page++;
         } // while
 
         // Display results
-        const recent = allRides.slice(0, 200);  // Show 20 most recent
+        const recent = allRides /*.slice(0, 200)*/;  // Show 20 most recent
         statusEl.innerHTML = '';
-        for (let i = 0; i < 200; i++){
+        for (let i = 0; i < 500; i++){
         let theDay = new Date(recent[i].start_date).getDay();
         if (theDay == 0) {
         statusEl.innerHTML += `
