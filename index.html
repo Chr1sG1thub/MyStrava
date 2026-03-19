@@ -35,6 +35,7 @@
         statusEl.innerHTML = `
           <strong>✅ Connected to Strava!</strong><br>
           <button onclick="loadAllRides()" style="margin-top: 10px;">📊 Load All Rides</button>
+          <button onclick="loadAllRoutes()" style="margin-top: 10px;">📊 Load All Routes</button>
         `;
       } else {
         statusEl.innerHTML = 'Click "Connect to Strava" to start. After auth, your /api/callback must store token and set localStorage.';
@@ -94,7 +95,53 @@
       }
     }
 
-    // Auto-update status on page load
+     async function loadAllRoutes() {
+      const token = localStorage.getItem('strava_token');
+      if (!token) {
+        document.getElementById('status').innerHTML = '❌ No token! Reconnect via Strava.';
+        return;
+      }
+
+      const statusEl = document.getElementById('status');
+      statusEl.innerHTML = '⏳ Loading all your routes...';
+
+      try {
+        let allRoutes = [];
+        let page = 1;
+        let hasMore = true;
+
+        // Fetch ALL pages (max 50 per page)
+        
+        while (hasMore) {
+          const res = await fetch(`https://www.strava.com/api/v3/athletes/0/routes?page=${page}&per_page=20`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+
+          const routes = await res.json();
+          if (!res.ok) throw new Error('API error: ' + (routes.message || res.statusText));
+          
+          allRoutes = allRoutes.concat(routes);
+          hasMore = false;
+//          hasMore = routes.length === 200;  // Continue if full page
+          page++;
+        } // while
+
+        // Display results
+        const recent = allRoutes.slice(0, 20);
+        statusEl.innerHTML = '';
+        for (let i = 0; i < 20; i++){
+        statusEl.innerHTML += `
+ ${recent[i].description}|
+                ${(recent[i].distance/1000).toFixed(1)}km|
+                ${(recent[i].elevation_gain).toFixed(0)}m
+                <br>
+            `;
+        } //for
+      } catch (error) {
+        statusEl.innerHTML = `<strong>❌ Error:</strong> ${error.message}<br>Token expired? Reconnect.`;
+      }
+    }
+   // Auto-update status on page load
     updateStatus();
   </script>
 </body>
