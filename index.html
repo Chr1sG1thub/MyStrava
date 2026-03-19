@@ -24,7 +24,7 @@
         `client_id=${CLIENT_ID}&` +
         `redirect_uri=https://${DOMAIN}/api/callback&` +
         `response_type=code&` +
-        `scope=read_all,activity:read_all&approval_prompt=auto`;
+        `scope=profile:read_all,activity:read_all&approval_prompt=auto`;
       window.location.href = authUrl;
     }
 
